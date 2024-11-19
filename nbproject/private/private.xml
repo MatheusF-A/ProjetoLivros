@@ -3,10 +3,7 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Math/Documents/NetBeansProjects/Livros/src/livros/Livros.java</file>
-            <file>file:/C:/Users/Math/Documents/NetBeansProjects/Livros/src/livros/Menu.java</file>
-            <file>file:/C:/Users/Math/Documents/NetBeansProjects/Livros/src/livros/Genero.java</file>
-            <file>file:/C:/Users/Math/Documents/NetBeansProjects/Livros/src/livros/GeneroDAO.java</file>
+            <file>file:/C:/Users/Math/Documents/NetBeansProjects/Livros/src/livros/LivroDAO.java</file>
             <file>file:/C:/Users/Math/Documents/NetBeansProjects/Livros/src/livros/Listagem.java</file>
         </group>
     </open-files>

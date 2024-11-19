@@ -8,7 +8,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import javax.swing.table.DefaultTableModel;;
+import javax.swing.table.DefaultTableModel; 
+import javax.swing.JOptionPane;
 /**
  *
  * @author Math
@@ -21,38 +22,63 @@ public class Listagem extends javax.swing.JFrame {
     public Listagem() {
         initComponents();
         setLocationRelativeTo(null);
-        carregarTabelaLivros();
+        tblLivros.setModel(carregarTabelaLivros());
     }
 
-     private void carregarTabelaLivros() {
-        DefaultTableModel modelo = (DefaultTableModel) tblLivros.getModel();
-        modelo.setRowCount(0); // Limpa a tabela antes de carregar novos dados
+    public DefaultTableModel carregarTabelaLivros() {
+    // Colunas da tabela
+    String[] colunas = {"Título", "Gênero", "Editora", "Idioma", "Ano de Publicação", "Autores"};
+    DefaultTableModel modelo = new DefaultTableModel(colunas, 0);
 
-        String sql = "SELECT l.id, l.titulo, a.nome AS autor, g.nome AS genero, e.nome AS editora, l.ano_publicacao " +
-                     "FROM livro l " +
-                     "LEFT JOIN autor a ON l.id_autor = a.id " +
-                     "LEFT JOIN genero g ON l.id_genero = g.id " +
-                     "LEFT JOIN editora e ON l.id_editora = e.id";
+    // Consulta SQL
+    String sql = 
+        "SELECT " +
+        "    livro.titulo AS Título, " +
+        "    genero.nome AS Gênero, " +
+        "    editora.nome AS Editora, " +
+        "    idioma.nome AS Idioma, " +
+        "    livro.ano_publicacao AS `Ano de Publicação`, " +
+        "    GROUP_CONCAT(autor.nome SEPARATOR ', ') AS Autores " +
+        "FROM " +
+        "    livro " +
+        "LEFT JOIN livro_autor ON livro.id = livro_autor.id_livro " +
+        "LEFT JOIN autor ON livro_autor.id_autor = autor.id " +
+        "LEFT JOIN genero ON livro.genero_id = genero.id " +
+        "LEFT JOIN editora ON livro.editora_id = editora.id " +
+        "LEFT JOIN idioma ON livro.idioma_id = idioma.id " +
+        "GROUP BY " +
+        "    livro.titulo, " +
+        "    genero.nome, " +
+        "    editora.nome, " +
+        "    idioma.nome, " +
+        "    livro.ano_publicacao ";
 
-        try (Connection conn = Conexao.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
 
-            while (rs.next()) {
-                modelo.addRow(new Object[]{
-                    rs.getInt("id"),
-                    rs.getString("titulo"),
-                    rs.getString("autor"),
-                    rs.getString("genero"),
-                    rs.getString("editora"),
-                    rs.getInt("ano_publicacao")
-                });
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+    // Conexão com o banco de dados
+    try (Connection conn = Conexao.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery()) {
+
+        // Percorre os resultados e adiciona ao modelo
+        while (rs.next()) {
+            String titulo = rs.getString("Título");
+            String genero = rs.getString("Gênero");
+            String editora = rs.getString("Editora");
+            String idioma = rs.getString("Idioma");
+            int anoPublicacao = rs.getInt("Ano de Publicação");
+            String autores = rs.getString("Autores");
+
+            // Adiciona a linha na tabela
+            modelo.addRow(new Object[]{titulo, genero, editora, idioma, anoPublicacao, autores});
         }
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(null, "Erro ao carregar dados da tabela livros: " + e.getMessage());
     }
 
+    return modelo;
+}
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -93,7 +119,7 @@ public class Listagem extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel9)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(759, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -193,8 +219,8 @@ public class Listagem extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 560, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap()
+                .addComponent(jScrollPane1)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
