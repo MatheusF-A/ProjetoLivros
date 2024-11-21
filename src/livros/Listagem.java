@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.table.DefaultTableModel; 
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
 /**
  *
  * @author Math
@@ -79,6 +80,66 @@ public class Listagem extends javax.swing.JFrame {
     return modelo;
 }
     
+    private void atualizarTabelaPorPesquisa(String coluna, String valor) {
+    // Colunas da tabela
+    String[] colunas = {"Título", "Gênero", "Editora", "Idioma", "Ano de Publicação", "Autor"};
+    DefaultTableModel modelo = new DefaultTableModel(colunas, 0);
+
+    // Consulta SQL com filtro
+    String sql = 
+        "SELECT " +
+        
+        "    livro.titulo AS Título, " +
+        "    genero.nome AS Gênero, " +
+        "    editora.nome AS Editora, " +
+        "    idioma.nome AS Idioma, " +
+        "    livro.ano_publicacao AS `Ano de Publicação`, " +
+       
+        "    GROUP_CONCAT(autor.nome SEPARATOR ', ') AS Autores " +
+        "FROM " +
+        "    livro " +
+        "LEFT JOIN livro_autor ON livro.id = livro_autor.id_livro " +
+        "LEFT JOIN autor ON livro_autor.id_autor = autor.id " +
+        "LEFT JOIN genero ON livro.genero_id = genero.id " +
+        "LEFT JOIN editora ON livro.editora_id = editora.id " +
+        "LEFT JOIN idioma ON livro.idioma_id = idioma.id " +
+        "WHERE " + coluna + " LIKE ? " + // Filtro pela coluna
+        "GROUP BY " +
+        
+        "    livro.titulo, " +
+        "    genero.nome, " +
+        "    editora.nome, " +
+        "    idioma.nome, " +
+        "    livro.ano_publicacao;";
+
+
+    try (Connection conn = Conexao.getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+        stmt.setString(1, "%" + valor + "%"); // Substitui o "?" na consulta
+        ResultSet rs = stmt.executeQuery();
+
+        // Preenche a tabela com os resultados
+        while (rs.next()) {
+            
+            String titulo = rs.getString("Título");
+            String genero = rs.getString("Gênero");
+            String editora = rs.getString("Editora");
+            String idioma = rs.getString("Idioma");
+            int anoPublicacao = rs.getInt("Ano de Publicação");
+            String autores = rs.getString("Autores");
+
+            modelo.addRow(new Object[]{titulo, genero, editora, idioma, anoPublicacao, autores});
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(null, "Erro ao pesquisar dados: " + e.getMessage());
+    }
+
+    tblLivros.setModel(modelo); // Atualiza o modelo da tabela
+}
+
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -88,10 +149,25 @@ public class Listagem extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jScrollPane2 = new javax.swing.JScrollPane();
+        jEditorPane1 = new javax.swing.JEditorPane();
         jPanel1 = new javax.swing.JPanel();
         jLabel9 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tblLivros = new javax.swing.JTable();
+        txtPesqAutor = new javax.swing.JTextField();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jLabel5 = new javax.swing.JLabel();
+        txtPesqGenero = new javax.swing.JTextField();
+        txtPesqIdioma = new javax.swing.JTextField();
+        txtPesqEditora = new javax.swing.JTextField();
+        btnPeditora = new javax.swing.JButton();
+        btnPidioma = new javax.swing.JButton();
+        btnPgenero = new javax.swing.JButton();
+        btnPautor = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem7 = new javax.swing.JMenuItem();
@@ -102,6 +178,8 @@ public class Listagem extends javax.swing.JFrame {
         jMenuItem3 = new javax.swing.JMenuItem();
         jMenuItem5 = new javax.swing.JMenuItem();
         jMenuItem4 = new javax.swing.JMenuItem();
+
+        jScrollPane2.setViewportView(jEditorPane1);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Listagem de Livros");
@@ -119,7 +197,7 @@ public class Listagem extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel9)
-                .addContainerGap(759, Short.MAX_VALUE))
+                .addContainerGap(931, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -129,6 +207,8 @@ public class Listagem extends javax.swing.JFrame {
                 .addContainerGap())
         );
 
+        tblLivros.setAutoCreateRowSorter(true);
+        tblLivros.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         tblLivros.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
@@ -139,8 +219,74 @@ public class Listagem extends javax.swing.JFrame {
             new String [] {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        tblLivros.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(tblLivros);
+        if (tblLivros.getColumnModel().getColumnCount() > 0) {
+            tblLivros.getColumnModel().getColumn(0).setMinWidth(300);
+            tblLivros.getColumnModel().getColumn(1).setMinWidth(150);
+            tblLivros.getColumnModel().getColumn(2).setPreferredWidth(200);
+            tblLivros.getColumnModel().getColumn(3).setPreferredWidth(50);
+        }
+
+        txtPesqAutor.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtPesqAutorActionPerformed(evt);
+            }
+        });
+
+        jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        jLabel1.setText("PESQUISAR POR:");
+
+        jLabel2.setText("Autor:");
+
+        jLabel3.setText("Gênero: ");
+
+        jLabel4.setText("Idioma: ");
+
+        jLabel5.setText("Editora:");
+
+        txtPesqEditora.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtPesqEditoraActionPerformed(evt);
+            }
+        });
+
+        btnPeditora.setText("Pesquisar por Editora");
+        btnPeditora.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPeditoraActionPerformed(evt);
+            }
+        });
+
+        btnPidioma.setText("Pesquisar por Idioma");
+        btnPidioma.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPidiomaActionPerformed(evt);
+            }
+        });
+
+        btnPgenero.setText("Pesquisar por Gênero");
+        btnPgenero.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPgeneroActionPerformed(evt);
+            }
+        });
+
+        btnPautor.setText("Pesquisar por Autor");
+        btnPautor.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPautorActionPerformed(evt);
+            }
+        });
 
         jMenu1.setText("Ir Para");
         jMenu1.addActionListener(new java.awt.event.ActionListener() {
@@ -218,16 +364,71 @@ public class Listagem extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane1)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel1)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel3)
+                                    .addComponent(jLabel2))
+                                .addGap(18, 18, 18)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(txtPesqAutor, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(btnPautor, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(txtPesqGenero, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(btnPgenero))))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel4)
+                                    .addComponent(jLabel5))
+                                .addGap(18, 18, 18)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(txtPesqIdioma, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(btnPidioma, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(txtPesqEditora, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(btnPeditora)))))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 146, Short.MAX_VALUE)
+                .addGap(33, 33, 33)
+                .addComponent(jLabel1)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtPesqAutor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2)
+                    .addComponent(btnPautor))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(txtPesqGenero, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnPgenero))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(txtPesqIdioma, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnPidioma))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel5)
+                    .addComponent(txtPesqEditora, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnPeditora))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 275, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -267,6 +468,38 @@ public class Listagem extends javax.swing.JFrame {
         Menu.irCadIdioma(this);        // TODO add your handling code here:
     }//GEN-LAST:event_jMenuItem4ActionPerformed
 
+    private void txtPesqAutorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtPesqAutorActionPerformed
+        
+    }//GEN-LAST:event_txtPesqAutorActionPerformed
+
+    private void txtPesqEditoraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtPesqEditoraActionPerformed
+
+    }//GEN-LAST:event_txtPesqEditoraActionPerformed
+
+    private void btnPautorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPautorActionPerformed
+    String autor = txtPesqAutor.getText();
+    atualizarTabelaPorPesquisa("autor.nome", autor);
+    txtPesqAutor.setText("");
+    }//GEN-LAST:event_btnPautorActionPerformed
+
+    private void btnPidiomaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPidiomaActionPerformed
+    String idioma = txtPesqIdioma.getText();
+    atualizarTabelaPorPesquisa("idioma.nome", idioma);
+txtPesqIdioma.setText("");    // TODO add your handling code here:
+    }//GEN-LAST:event_btnPidiomaActionPerformed
+
+    private void btnPgeneroActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPgeneroActionPerformed
+    String genero = txtPesqGenero.getText();
+    atualizarTabelaPorPesquisa("genero.nome", genero);
+    txtPesqGenero.setText("");
+    }//GEN-LAST:event_btnPgeneroActionPerformed
+
+    private void btnPeditoraActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPeditoraActionPerformed
+    String editora = txtPesqEditora.getText();
+    atualizarTabelaPorPesquisa("editora.nome", editora);
+    txtPesqEditora.setText("");// TODO add your handling code here:
+    }//GEN-LAST:event_btnPeditoraActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -302,6 +535,16 @@ public class Listagem extends javax.swing.JFrame {
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnPautor;
+    private javax.swing.JButton btnPeditora;
+    private javax.swing.JButton btnPgenero;
+    private javax.swing.JButton btnPidioma;
+    private javax.swing.JEditorPane jEditorPane1;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu3;
@@ -315,6 +558,11 @@ public class Listagem extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem8;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable tblLivros;
+    private javax.swing.JTextField txtPesqAutor;
+    private javax.swing.JTextField txtPesqEditora;
+    private javax.swing.JTextField txtPesqGenero;
+    private javax.swing.JTextField txtPesqIdioma;
     // End of variables declaration//GEN-END:variables
 }
