@@ -10,7 +10,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.swing.table.DefaultTableModel; 
 import javax.swing.JOptionPane;
-import javax.swing.JTable;
 /**
  *
  * @author Math
@@ -138,6 +137,54 @@ public class Listagem extends javax.swing.JFrame {
 
     tblLivros.setModel(modelo); // Atualiza o modelo da tabela
 }
+    
+    public void excluirLivroSelecionado() {
+    int linhaSelecionada = tblLivros.getSelectedRow();
+
+    if (linhaSelecionada != -1) {
+        // Pega o nome do livro da primeira coluna (onde o título está)
+        String nomeLivro = tblLivros.getValueAt(linhaSelecionada, 0).toString();
+
+        int resposta = JOptionPane.showConfirmDialog(null, 
+            "Tem certeza que deseja excluir o livro \"" + nomeLivro + "\"?", 
+            "Confirmar Exclusão", 
+            JOptionPane.YES_NO_OPTION);
+
+        if (resposta == JOptionPane.YES_OPTION) {
+            excluirLivro(nomeLivro);
+        }
+    } else {
+        JOptionPane.showMessageDialog(null, "Selecione um livro para excluir.");
+    }
+}
+
+    public void excluirLivro(String nomeLivro) {
+    
+    String sqlRelacao = "DELETE FROM livro_autor WHERE id_livro = (SELECT id FROM livro WHERE titulo = ?)";
+    
+    String sqlLivro = "DELETE FROM livro WHERE titulo = ?";
+
+    try (Connection conn = Conexao.getConnection();
+         PreparedStatement stmtRelacao = conn.prepareStatement(sqlRelacao);
+         PreparedStatement stmtLivro = conn.prepareStatement(sqlLivro)) {
+
+        //Apaga a relação livro-autor
+        stmtRelacao.setString(1, nomeLivro);
+        stmtRelacao.executeUpdate();
+
+        //Apaga o Livro
+        stmtLivro.setString(1, nomeLivro);
+        stmtLivro.executeUpdate();
+
+        JOptionPane.showMessageDialog(null, "Livro excluído com sucesso!");
+        
+        tblLivros.setModel(carregarTabelaLivros());
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(null, "Erro ao excluir livro: " + e.getMessage());
+    }
+}
 
     
     /**
@@ -168,6 +215,7 @@ public class Listagem extends javax.swing.JFrame {
         btnPidioma = new javax.swing.JButton();
         btnPgenero = new javax.swing.JButton();
         btnPautor = new javax.swing.JButton();
+        btnExcluir = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenuItem7 = new javax.swing.JMenuItem();
@@ -288,6 +336,15 @@ public class Listagem extends javax.swing.JFrame {
             }
         });
 
+        btnExcluir.setBackground(new java.awt.Color(255, 51, 51));
+        btnExcluir.setForeground(new java.awt.Color(255, 255, 255));
+        btnExcluir.setText("Excluir Livro Selecionado");
+        btnExcluir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnExcluirActionPerformed(evt);
+            }
+        });
+
         jMenu1.setText("Ir Para");
         jMenu1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -367,40 +424,45 @@ public class Listagem extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1)
+                            .addComponent(jScrollPane1)
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel3)
-                                    .addComponent(jLabel2))
-                                .addGap(18, 18, 18)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jLabel1)
                                     .addGroup(layout.createSequentialGroup()
-                                        .addComponent(txtPesqAutor, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(jLabel3)
+                                            .addComponent(jLabel2))
                                         .addGap(18, 18, 18)
-                                        .addComponent(btnPautor, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(txtPesqGenero, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(btnPgenero))))
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addComponent(txtPesqAutor, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addGap(18, 18, 18)
+                                                .addComponent(btnPautor, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addComponent(txtPesqGenero, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addGap(18, 18, 18)
+                                                .addComponent(btnPgenero)))))
+                                .addGap(0, 0, Short.MAX_VALUE)))
+                        .addContainerGap())
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel4)
+                            .addComponent(jLabel5))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel4)
-                                    .addComponent(jLabel5))
+                                .addComponent(txtPesqIdioma, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(txtPesqIdioma, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(btnPidioma, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(txtPesqEditora, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(btnPeditora)))))
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
+                                .addComponent(btnPidioma, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(txtPesqEditora, javax.swing.GroupLayout.PREFERRED_SIZE, 165, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(btnPeditora)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnExcluir)
+                        .addGap(28, 28, 28))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -427,7 +489,8 @@ public class Listagem extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
                     .addComponent(txtPesqEditora, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnPeditora))
+                    .addComponent(btnPeditora)
+                    .addComponent(btnExcluir))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 275, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
@@ -500,6 +563,10 @@ txtPesqIdioma.setText("");    // TODO add your handling code here:
     txtPesqEditora.setText("");// TODO add your handling code here:
     }//GEN-LAST:event_btnPeditoraActionPerformed
 
+    private void btnExcluirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExcluirActionPerformed
+    excluirLivroSelecionado();
+    }//GEN-LAST:event_btnExcluirActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -535,6 +602,7 @@ txtPesqIdioma.setText("");    // TODO add your handling code here:
         });
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnExcluir;
     private javax.swing.JButton btnPautor;
     private javax.swing.JButton btnPeditora;
     private javax.swing.JButton btnPgenero;

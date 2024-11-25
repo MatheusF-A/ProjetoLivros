@@ -31,7 +31,7 @@ public class AutorDAO {
         }
         return autores;
     }
-    
+      
     public int obterIdAutor(String nome) {
         String sql = "SELECT id FROM autor WHERE nome = ?";
         int id = -1;

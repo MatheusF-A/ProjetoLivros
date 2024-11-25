@@ -1,6 +1,11 @@
 package livros;
+import java.awt.Component;
 import java.util.List;
+import javax.swing.BoxLayout;
+import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 
 /**
  *
@@ -18,14 +23,29 @@ public class frmLivro extends javax.swing.JFrame {
     }
     
     private void carregarAutores() {
-        AutorDAO autorDAO = new AutorDAO();
-        List<String> autores = autorDAO.obterNomesAutores();
+        try {
         
-        for (String autor : autores) {
-            cbxAutor1.addItem(autor);
-            cbxAutor2.addItem(autor);
-            cbxAutor3.addItem(autor);
-    }
+            AutorDAO autorDAO = new AutorDAO();
+            List<String> autores = autorDAO.obterNomesAutores();
+
+        
+            JPanel panelAutores = new JPanel();
+            panelAutores.setLayout(new BoxLayout(panelAutores, BoxLayout.Y_AXIS)); // Alinha verticalmente
+
+            for (String autor : autores) {
+                JCheckBox checkBoxAutor = new JCheckBox(autor);
+                panelAutores.add(checkBoxAutor);
+            }
+
+        scrAutores.setViewportView(panelAutores);
+        
+        // Aumenta a velocidade de rolagem do painel
+        JScrollBar verticalScrollBar = scrAutores.getVerticalScrollBar();
+        verticalScrollBar.setUnitIncrement(6);
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Erro ao carregar autores: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
+        }
     }
     
     private void carregarEditoras() {
@@ -70,9 +90,6 @@ public class frmLivro extends javax.swing.JFrame {
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
         txtTitulo = new javax.swing.JTextField();
-        cbxAutor1 = new javax.swing.JComboBox<>();
-        cbxAutor2 = new javax.swing.JComboBox<>();
-        cbxAutor3 = new javax.swing.JComboBox<>();
         cbxGenero = new javax.swing.JComboBox<>();
         cbxEditora = new javax.swing.JComboBox<>();
         cbxIdioma = new javax.swing.JComboBox<>();
@@ -82,6 +99,7 @@ public class frmLivro extends javax.swing.JFrame {
         btnSalvar = new javax.swing.JButton();
         jPanel1 = new javax.swing.JPanel();
         jLabel9 = new javax.swing.JLabel();
+        scrAutores = new javax.swing.JScrollPane();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu2 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
@@ -116,17 +134,6 @@ public class frmLivro extends javax.swing.JFrame {
         jLabel7.setText("Ano de Publicação:");
 
         jLabel8.setText("Sinopse: ");
-
-        cbxAutor1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Escolha um Autor" }));
-
-        cbxAutor2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Escolha um Autor" }));
-
-        cbxAutor3.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Escolha um Autor" }));
-        cbxAutor3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cbxAutor3ActionPerformed(evt);
-            }
-        });
 
         cbxGenero.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Escolha o Gênero" }));
 
@@ -164,7 +171,7 @@ public class frmLivro extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel9)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(418, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -244,43 +251,36 @@ public class frmLivro extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1)
-                    .addComponent(txtTitulo)
+                    .addComponent(scrAutores)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(cbxAutor1, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(cbxAutor2, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(cbxAutor3, 0, 174, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel4)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jLabel5)
-                        .addGap(197, 197, 197))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(cbxGenero, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel6)
-                            .addComponent(cbxIdioma, javax.swing.GroupLayout.PREFERRED_SIZE, 230, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(cbxEditora, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnSalvar, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(txtTitulo, javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel7)
-                                .addGap(0, 0, Short.MAX_VALUE))
-                            .addComponent(txtAno)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel3)
-                            .addComponent(jLabel2)
-                            .addComponent(jLabel8)
-                            .addComponent(btnSalvar, javax.swing.GroupLayout.PREFERRED_SIZE, 114, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel6)
+                                    .addComponent(jLabel4)
+                                    .addComponent(jLabel2)
+                                    .addComponent(jLabel8)
+                                    .addComponent(jLabel3)
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                        .addComponent(cbxIdioma, javax.swing.GroupLayout.Alignment.LEADING, 0, 230, Short.MAX_VALUE)
+                                        .addComponent(cbxGenero, javax.swing.GroupLayout.Alignment.LEADING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                                .addGap(18, 18, 18)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(txtAno, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(cbxEditora, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel5)
+                                    .addComponent(jLabel7))))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -293,11 +293,8 @@ public class frmLivro extends javax.swing.JFrame {
                 .addGap(5, 5, 5)
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(cbxAutor1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(cbxAutor2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(cbxAutor3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(scrAutores, javax.swing.GroupLayout.DEFAULT_SIZE, 135, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
                     .addComponent(jLabel5))
@@ -308,7 +305,7 @@ public class frmLivro extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
-                    .addComponent(jLabel7))
+                    .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 16, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(cbxIdioma, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -319,7 +316,7 @@ public class frmLivro extends javax.swing.JFrame {
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(btnSalvar)
-                .addContainerGap(18, Short.MAX_VALUE))
+                .addGap(32, 32, 32))
         );
 
         pack();
@@ -357,10 +354,6 @@ Menu.irCadEditora(this);      // TODO add your handling code here:
 Menu.irCadIdioma(this);        // TODO add your handling code here:
     }//GEN-LAST:event_jMenuItem4ActionPerformed
 
-    private void cbxAutor3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxAutor3ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_cbxAutor3ActionPerformed
-
     private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
                                                                                                          
     String titulo = txtTitulo.getText();
@@ -381,27 +374,20 @@ Menu.irCadIdioma(this);        // TODO add your handling code here:
 
     LivroDAO livroDAO = new LivroDAO();
     int idLivro = livroDAO.salvarLivro(titulo, idEditora, idGenero, idIdioma, anoPublicacao, sinopse);
-
+    
+    JPanel panelAutores = (JPanel) scrAutores.getViewport().getView();
+    Component[] componentes = panelAutores.getComponents();
+    
     AutorDAO autorDAO = new AutorDAO();
-
-    String nomeAutor1 = (String) cbxAutor1.getSelectedItem();
-    String nomeAutor2 = (String) cbxAutor2.getSelectedItem();
-    String nomeAutor3 = (String) cbxAutor3.getSelectedItem();
-
-    if (nomeAutor1 != null && !nomeAutor1.equals("Escolha um Autor")) {
-        int idAutor1 = autorDAO.obterIdAutor(nomeAutor1);
-        livroDAO.associarLivroAutor(idLivro, idAutor1);
-    }
-
-    if (nomeAutor2 != null && !nomeAutor2.equals("Escolha um Autor")) {
-        int idAutor2 = autorDAO.obterIdAutor(nomeAutor2);
-        livroDAO.associarLivroAutor(idLivro, idAutor2);
-    }
-
-    if (nomeAutor3 != null && !nomeAutor3.equals("Escolha um Autor")) {
-        int idAutor3 = autorDAO.obterIdAutor(nomeAutor3);
-        livroDAO.associarLivroAutor(idLivro, idAutor3);
-    }
+        for (Component componente : componentes) {
+            if (componente instanceof JCheckBox checkBox) {
+                if (checkBox.isSelected()) {
+                    String nomeAutor = checkBox.getText();
+                    int idAutor = autorDAO.obterIdAutor(nomeAutor);
+                    livroDAO.associarLivroAutor(idLivro, idAutor);
+                }
+            }
+        }
 
     JOptionPane.showMessageDialog(this, "Livro salvo com sucesso!");
     Menu.irListagem(this);
@@ -443,9 +429,6 @@ Menu.irCadIdioma(this);        // TODO add your handling code here:
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnSalvar;
-    private javax.swing.JComboBox<String> cbxAutor1;
-    private javax.swing.JComboBox<String> cbxAutor2;
-    private javax.swing.JComboBox<String> cbxAutor3;
     private javax.swing.JComboBox<String> cbxEditora;
     private javax.swing.JComboBox<String> cbxGenero;
     private javax.swing.JComboBox<String> cbxIdioma;
@@ -472,6 +455,7 @@ Menu.irCadIdioma(this);        // TODO add your handling code here:
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField jTextField3;
+    private javax.swing.JScrollPane scrAutores;
     private javax.swing.JTextField txtAno;
     private javax.swing.JTextArea txtSinopse;
     private javax.swing.JTextField txtTitulo;
