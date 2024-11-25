@@ -206,7 +206,7 @@ Menu.irListagem(this);        // TODO add your handling code here:
 
     private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
 String nome = autorNome.getText();    
-Autor.salvarAutor(nome);// TODO add your handling code here:
+Autor.salvarAutor(nome);
 Menu.irListagem(this);
     }//GEN-LAST:event_btnSalvarActionPerformed
 

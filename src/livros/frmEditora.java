@@ -208,8 +208,8 @@ Menu.irCadIdioma(this);        // TODO add your handling code here:
 
     private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
 String nome = editoraNome.getText();    
-Editora.salvarEditora(nome);// TODO add your handling code here:
-Menu.irListagem(this);        // TODO add your handling code here:
+Editora.salvarEditora(nome);
+Menu.irListagem(this);
     }//GEN-LAST:event_btnSalvarActionPerformed
 
     /**

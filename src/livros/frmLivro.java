@@ -33,7 +33,7 @@ public class frmLivro extends javax.swing.JFrame {
         List<String> editoras = editoraDAO.obterNomesEditoras();
         
         for (String editora : editoras) {
-            cbxEditora.addItem(editora);  // Adiciona cada editora ao JComboBox
+            cbxEditora.addItem(editora);  
         }
     }
     
@@ -42,7 +42,7 @@ public class frmLivro extends javax.swing.JFrame {
         List<String> generos = generoDAO.obterNomesGeneros();
         
         for (String genero : generos) {
-            cbxGenero.addItem(genero);  // Adiciona cada gênero ao JComboBox
+            cbxGenero.addItem(genero);
         }
     }
       
@@ -51,7 +51,7 @@ public class frmLivro extends javax.swing.JFrame {
         List<String> idiomas = idiomaDAO.obterNomesIdiomas();
         
         for (String idioma : idiomas) {
-            cbxIdioma.addItem(idioma);  // Adiciona cada idioma ao JComboBox
+            cbxIdioma.addItem(idioma); 
         }
     }  
     
@@ -370,7 +370,6 @@ Menu.irCadIdioma(this);        // TODO add your handling code here:
     int anoPublicacao = Integer.parseInt(txtAno.getText());
     String sinopse = txtSinopse.getText();
 
-    // Obter os IDs de Editora, Gênero e Idioma
     EditoraDAO editoraDAO = new EditoraDAO();
     int idEditora = editoraDAO.obterIdEditora(nomeEditora);
 
@@ -380,11 +379,9 @@ Menu.irCadIdioma(this);        // TODO add your handling code here:
     IdiomaDAO idiomaDAO = new IdiomaDAO();
     int idIdioma = idiomaDAO.obterIdIdioma(nomeIdioma);
 
-    // Salvar o livro
     LivroDAO livroDAO = new LivroDAO();
     int idLivro = livroDAO.salvarLivro(titulo, idEditora, idGenero, idIdioma, anoPublicacao, sinopse);
 
-    // Obter os IDs dos Autores selecionados (ou ignorar se forem nulos)
     AutorDAO autorDAO = new AutorDAO();
 
     String nomeAutor1 = (String) cbxAutor1.getSelectedItem();
@@ -444,7 +441,6 @@ Menu.irCadIdioma(this);        // TODO add your handling code here:
             }
         });
     }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnSalvar;
     private javax.swing.JComboBox<String> cbxAutor1;

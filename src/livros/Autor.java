@@ -55,7 +55,7 @@ public class Autor {
 
     try (Connection conn = Conexao.getConnection();
          PreparedStatement stmt = conn.prepareStatement(sql)) {
-        stmt.setString(1, nome);  // Insere o valor do parâmetro "nome"
+        stmt.setString(1, nome);
 
         stmt.executeUpdate();
     } catch (SQLException e) {
